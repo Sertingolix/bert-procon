@@ -67,6 +67,7 @@ flags.DEFINE_integer(
     "Sequences longer than this will be truncated, and sequences shorter "
     "than this will be padded.")
 
+#added new flags to also predict train validation set (attention this is slow)
 flags.DEFINE_bool("do_train", False, "Whether to run training.")
 
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
@@ -209,7 +210,7 @@ class DataProcessor(object):
         lines.append(line)
       return lines
 
-#own Dataprocessor (Story Close Task)
+#own Dataprocessor (ProCon Dataset with two arguments)
 class FNC1Processor(DataProcessor):
   """Processor for the FNC-1 Task can be run eather with body-body input or question-body input"""
 
@@ -259,8 +260,9 @@ class FNC1Processor(DataProcessor):
 class FNC1BodyProcessor(FNC1Processor):
   """Processor for the FNC-1 task predcition if pro or con only based on body label."""
   # only difference is found in _create_examples
-  #text_a is headline which is ommited
+  # text_a is headline which is ommited
   #   
+
   def _create_examples(self, lines, set_type):
     """Creates examples for the training and dev sets."""
     examples = []
@@ -836,7 +838,7 @@ def main(_):
         tf.logging.info("  %s = %s", key, str(result[key]))
         writer.write("%s = %s\n" % (key, str(result[key])))
 
-
+  #added flag to eval training set
   if FLAGS.do_eval_train:
     eval_file = os.path.join(FLAGS.output_dir, "train.tf_record")
 
@@ -891,6 +893,7 @@ def main(_):
         tf.logging.info("  %s = %s", key, str(result[key]))
         writer.write("%s = %s\n" % (key, str(result[key])))
 
+
   if FLAGS.do_predict:
     predict_examples = processor.get_test_examples(FLAGS.data_dir)
     num_actual_predict_examples = len(predict_examples)
@@ -937,6 +940,7 @@ def main(_):
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples
 
+  #added flag to predict training set
   if FLAGS.do_predict_train:
     predict_file = os.path.join(FLAGS.data_dir, "train.tf_record")
 
